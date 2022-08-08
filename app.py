@@ -1,7 +1,7 @@
 #----------------------------------------------------------------------------#
 # Imports
 #----------------------------------------------------------------------------#
-
+import sys
 import json
 import dateutil.parser
 import babel
@@ -10,7 +10,6 @@ from flask_moment import Moment
 
 import logging
 from logging import Formatter, FileHandler
-from flask_wtf import Form
 from forms import *
 from sqlalchemy import func
 from models import setup_db, Artist, Venue, Show
@@ -133,7 +132,7 @@ def show_venue(venue_id):
     data = {
         "id": venue_data.id,
         "name": venue_data.name,
-        "genres": venue_data.genres,
+        "genres": list(venue_data.genres.replace("{", " ").replace("}", "").split(",")),
         "address": venue_data.address,
         "city": venue_data.city,
         "state": venue_data.state,
@@ -163,8 +162,6 @@ def create_venue_form():
 
 @app.route('/venues/create', methods=['POST'])
 def create_venue_submission():
-    # TODO: insert form data as a new Venue record in the db, instead
-    # TODO: modify data to be the data object returned from db insertion
     try:
         form = VenueForm(request.form)
         venue = Venue(name=form.name.data, city=form.city.data, state=form.state.data, address=form.address.data, phone=form.phone.data,
@@ -175,6 +172,7 @@ def create_venue_submission():
         flash('Venue ' + request.form['name'] + ' was successfully listed!')
     except:
         db.session.rollback()
+        print(sys.exc_info())
         flash('An error occured. Venue ' +
               request.form['name'] + 'could not be listed')
     finally:
@@ -187,10 +185,19 @@ def create_venue_submission():
 def delete_venue(venue_id):
     # TODO: Complete this endpoint for taking a venue_id, and using
     # SQLAlchemy ORM to delete a record. Handle cases where the session commit could fail.
-
+    try:
+        Venue.query.filter_by(id=venue_id).delete()
+        db.session.commit()
+        flash("Venue deleted successfully")
+    except:
+        db.session.rollback()
+        print(sys.exc_info())
+        flash("An error occured. Unable to delete venue")
+    finally:
+        db.session.close()
     # BONUS CHALLENGE: Implement a button to delete a Venue on a Venue Page, have it so that
     # clicking that button delete it from the db then redirect the user to the homepage
-    return None
+    return render_template('pages/home.html')
 
 #  Artists
 #  ----------------------------------------------------------------
@@ -257,7 +264,7 @@ def show_artist(artist_id):
     data = {
         "id": artist_data.id,
         "name": artist_data.name,
-        "genres": artist_data.genres,
+        "genres": list(artist_data.genres.replace("{", " ").replace("}", " ").split(",")),
         "city": artist_data.city,
         "state": artist_data.state,
         "phone": artist_data.phone,
@@ -306,7 +313,7 @@ def edit_artist_submission(artist_id):
         artist.city = request.form['city']
         artist.state = request.form['state']
         artist.phone = request.form['phone']
-        artist.genres = request.form['genres']
+        artist.genres = request.form.getlist('genres')
         artist.image_link = request.form['image_link']
         artist.facebook_link = request.form['facebook_link']
         artist.website_link = request.form['website_link']
@@ -317,6 +324,7 @@ def edit_artist_submission(artist_id):
         flash("Artist updated successfully")
     except:
         db.session.rollback()
+        print(sys.exc_info())
         flash("An error occured. Unable to change the artist info")
     finally:
         db.session.close()
@@ -367,6 +375,7 @@ def edit_venue_submission(venue_id):
         flash("Venue updated sucessfully")
     except:
         db.session.rollback()
+        print(sys.exc_info())
         flash("An error occured. Unable to change venue info")
     finally:
         db.session.close()
@@ -397,6 +406,7 @@ def create_artist_submission():
         flash('Artist ' + request.form['name'] + ' was successfully listed!')
     except:
         db.session.rollback()
+        print(sys.exc_info())
         flash('An error occurred. Artist ' +
               request.form['name'] + ' could not be listed')
     finally:
@@ -445,6 +455,7 @@ def create_show_submission():
         flash('Show was successfully listed!')
     except:
         db.session.rollback()
+        print(sys.exc_info())
         flash('An error occurred. Show could not be listed.')
     finally:
         db.session.close()
