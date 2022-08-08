@@ -1,8 +1,19 @@
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
+
+db = SQLAlchemy()
+
+
+def setup_db(app):
+    app.config.from_object('config')
+    db.app = app
+    db.init_app(app)
+    migrate = Migrate(app, db)
+    return db
 
 #----------------------------------------------------------------------------#
 # Models.
 #----------------------------------------------------------------------------#
-from app import db
 
 
 class Venue(db.Model):
@@ -10,6 +21,7 @@ class Venue(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
+    genres = db.Column(db.String(120))
     city = db.Column(db.String(120))
     state = db.Column(db.String(120))
     address = db.Column(db.String(120))
@@ -38,6 +50,9 @@ class Artist(db.Model):
     seeking_description = db.Column(db.String(500))
     shows = db.relationship('Show', backref='artist', lazy=True)
 
+    def __repr__(self):
+        return f'<Artist: {self.name} shows: {self.shows}>'
+
 
 class Show(db.Model):
     __tablename__ = 'shows'
@@ -47,3 +62,6 @@ class Show(db.Model):
     venue_id = db.Column(db.Integer, db.ForeignKey(
         'venues.id'), nullable=False)
     start_time = db.Column(db.DateTime)
+
+    def __repr__(self):
+        return f'<Show ID: {self.id} Artist: {self.artist_id} Venue: {self.venue_id} Start on {self.start_time}>'
