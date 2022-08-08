@@ -16,7 +16,7 @@ Create a local database for the project and change the config in the config.py f
 **Initialize and activate a virtualenv using:**
 ```
 cd fyyur
-python3 -m virtualenv env
+python3 -m venv env
 source env/bin/activate
 ```
 
@@ -24,12 +24,16 @@ source env/bin/activate
 ```
 pip install -r requirements.txt
 ```
+**Run migrations**
+```
+flask db upgrade
+```
 
-5. **Run the development server:**
+**Run the development server:**
 ```
 python3 app.py
 ```
 
-6. **Verify on the Browser**<br>
+**Verify on the Browser**<br>
 Navigate to project homepage [http://127.0.0.1:5000/](http://127.0.0.1:5000/) or [http://localhost:5000](http://localhost:5000) 
 
