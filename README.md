@@ -10,8 +10,9 @@ Fyyur is a musical venue and artist booking site that facilitates the discovery 
 git clone https://github.com/nichiren96/fyyur.git
 ```
 **Create the database for the project**
+```
 Create a local database for the project and change the config in the config.py file
-
+```
 **Initialize and activate a virtualenv using:**
 ```
 cd fyyur
