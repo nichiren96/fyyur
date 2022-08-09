@@ -53,26 +53,35 @@ def index():
 
 @app.route('/venues')
 def venues():
+    venues = Venue.query.all()
+    # get unique venue location
+    distinct_venues = Venue.query.distinct(Venue.state, Venue.city)
+
+    cities_and_states = []
+
+    for venue in distinct_venues:
+        cities_and_states.append([venue.city, venue.state])
+
     data = []
-    areas_data = Venue.query.with_entities(func.count(
-        Venue.id), Venue.state, Venue.city).group_by(Venue.state, Venue.city).all()
 
-    for area in areas_data:
-        venues = Venue.query.filter_by(
-            state=area.state).filter_by(city=area.city).all()
-        venue_data = []
-        for venue in venues:
-            venue_data.append({
-                "id": venue.id,
-                "name": venue.name,
-                "num_upcoming_shows": len(db.session.query(Show).filter(Show.venue_id == venue.id).filter(Show.start_time > datetime.now()).all())
-            })
-
+    for city_and_state in cities_and_states:
         data.append({
-            "city": area.city,
-            "state": area.state,
-            "venues": venue_data
+            "city": city_and_state[0],
+            "state": city_and_state[1],
+            "venues": []
         })
+
+    for venue in venues:
+        # get upcoming shows for each venue
+        upcoming_shows = Show.query.filter_by(venue_id=venue.id).filter(
+            Show.start_time > datetime.now()).all()
+        for venue_loc in data:
+            if venue.city == venue_loc["city"] and venue.state == venue_loc["state"]:
+                venue_loc["venues"].append({
+                    "id": venue.id,
+                    "name": venue.name,
+                    "num_upcoming_shows": len(upcoming_shows)
+                })
 
     return render_template('pages/venues.html', areas=data)
 
