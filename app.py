@@ -295,7 +295,9 @@ def edit_artist(artist_id):
     form = ArtistForm()
     artist = Artist.query.get(artist_id)
 
-    if artist:
+    if not artist:
+        return render_template('errors/404.html')
+    else:
         form.name.data = artist.name
         form.city.data = artist.city
         form.state.data = artist.state
@@ -343,7 +345,9 @@ def edit_venue(venue_id):
     form = VenueForm()
     venue = Venue.query.get(venue_id)
 
-    if venue:
+    if not venue:
+        return render_template('errors/404.html')
+    else:
         form.name.data = venue.name
         form.city.data = venue.city
         form.state.data = venue.state
