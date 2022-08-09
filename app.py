@@ -89,18 +89,18 @@ def venues():
 @app.route('/venues/search', methods=['POST'])
 def search_venues():
     search_term = request.form.get("search_term", "")
-    search_results = db.session.query(Venue).filter(
+    venues_results = db.session.query(Venue).filter(
         Venue.name.ilike(f"%{search_term}%")).all()
     data = []
 
-    for result in search_results:
+    for venue in venues_results:
         data.append({
-            "id": result.id,
-            "name": result.name,
-            "num_upcoming_shows": len(db.session.query(Show).filter(Show.venue_id == result.id).filter(Show.start_time > datetime.now()).all()),
+            "id": venue.id,
+            "name": venue.name,
+            "num_upcoming_shows": len(db.session.query(Show).filter(Show.venue_id == venue.id).filter(Show.start_time > datetime.now()).all()),
         })
     response = {
-        "count": len(search_results),
+        "count": len(venues_results),
         "data": data,
     }
 
@@ -218,18 +218,18 @@ def artists():
 @app.route('/artists/search', methods=['POST'])
 def search_artists():
     search_term = request.form.get("search_term", "")
-    search_results = db.session.query(Artist).filter(
+    artist_results = db.session.query(Artist).filter(
         Artist.name.ilike(f"%{search_term}%")).all()
     data = []
 
-    for result in search_results:
+    for artist in artist_results:
         data.append({
-            "id": result.id,
-            "name": result.name,
-            "num_upcoming_shows": len(db.session.query(Show).filter(Show.artist_id == result.id).filter(Show.start_time > datetime.now()).all()),
+            "id": artist.id,
+            "name": artist.name,
+            "num_upcoming_shows": len(db.session.query(Show).filter(Show.artist_id == artist.id).filter(Show.start_time > datetime.now()).all()),
         })
     response = {
-        "count": len(search_results),
+        "count": len(artist_results),
         "data": data,
     }
 
