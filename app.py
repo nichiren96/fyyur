@@ -442,16 +442,16 @@ def create_artist_submission():
 
 @app.route('/shows')
 def shows():
-    shows_data = db.session.query(Show).join(Artist).join(Venue).all()
+    shows_data = db.session.query(Show).all()
 
     data = []
     for show in shows_data:
         data.append({
             "venue_id": show.venue_id,
-            "venue_name": show.venue.name,
+            "venue_name": Venue.query.filter_by(id=show.venue_id).first().name,
             "artist_id": show.artist_id,
-            "artist_name": show.artist.name,
-            "artist_image_link": show.artist.image_link,
+            "artist_name": Artist.query.filter_by(id=show.artist_id).first().name,
+            "artist_image_link": Artist.query.filter_by(id=show.artist_id).first().image_link,
             "start_time": show.start_time.strftime("%Y-%m-%d %H:%M:%S")
         })
 
