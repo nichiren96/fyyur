@@ -328,26 +328,30 @@ def edit_artist(artist_id):
 def edit_artist_submission(artist_id):
     artist = Artist.query.get(artist_id)
 
-    try:
-        artist.name = request.form['name']
-        artist.city = request.form['city']
-        artist.state = request.form['state']
-        artist.phone = request.form['phone']
-        artist.genres = request.form.getlist('genres')
-        artist.image_link = request.form['image_link']
-        artist.facebook_link = request.form['facebook_link']
-        artist.website_link = request.form['website_link']
-        artist.seeking_venue = True if 'seeking_venue' in request.form else False
-        artist.seeking_description = request.form['seeking_description']
+    if(artist):
 
-        db.session.commit()
-        flash("Artist updated successfully")
-    except:
-        db.session.rollback()
-        print(sys.exc_info())
-        flash("An error occured. Unable to change the artist info")
-    finally:
-        db.session.close()
+        try:
+            artist.name = request.form['name']
+            artist.city = request.form['city']
+            artist.state = request.form['state']
+            artist.phone = request.form['phone']
+            artist.genres = request.form.getlist('genres')
+            artist.image_link = request.form['image_link']
+            artist.facebook_link = request.form['facebook_link']
+            artist.website_link = request.form['website_link']
+            artist.seeking_venue = True if 'seeking_venue' in request.form else False
+            artist.seeking_description = request.form['seeking_description']
+
+            db.session.commit()
+            flash("Artist updated successfully")
+        except:
+            db.session.rollback()
+            print(sys.exc_info())
+            flash("An error occured. Unable to change the artist info")
+        finally:
+            db.session.close()
+    else:
+        return render_template("errors/404.html")
 
     return redirect(url_for('show_artist', artist_id=artist_id))
 
