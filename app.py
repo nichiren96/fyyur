@@ -252,34 +252,32 @@ def search_artists():
 
 @app.route('/artists/<int:artist_id>')
 def show_artist(artist_id):
-    artist_data = db.session.query(Artist).get(artist_id)
+    artist_data = Artist.query.get(artist_id)
 
     if not artist_data:
         return render_template('errors/404.html')
 
-    upcoming_shows = []
-    upcoming_shows_data = db.session.query(Show).join(Venue).filter(
-        Show.artist_id == artist_id).filter(Show.start_time > datetime.now()).all()
-
-    for show in upcoming_shows_data:
-        upcoming_shows.append({
-            "venue_id": show.venue_id,
-            "venue_name": show.venue.name,
-            "venue_image_link": show.venue.image_link,
-            "start_time": show.start_time.strftime("%Y-%m-%d %H:%M:%S")
-        })
+    shows = Show.query.filter_by(artist_id=artist_data.id).all()
 
     past_shows = []
-    past_shows_data = db.session.query(Show).join(Venue).filter(
-        Show.artist_id == artist_id).filter(Show.start_time < datetime.now()).all()
+    for show in shows:
+        if show.start_time < datetime.now():
+            past_shows.append({
+                "venue_id": show.venue_id,
+                "venue_name": Venue.query.filter_by(id=show.venue_id).first().name,
+                "venue_image_link": Venue.query.filter_by(id=show.venue_id).first().image_link,
+                "start_time": show.start_time.strftime("%Y-%m-%d %H:%M:%S")
+            })
 
-    for show in past_shows_data:
-        past_shows.append({
-            "venue_id": show.venue_id,
-            "venue_name": show.venue.name,
-            "venue_image_link": show.venue.image_link,
-            "start_time": show.start_time.strftime("%Y-%m-%d %H:%M:%S")
-        })
+    upcoming_shows = []
+    for show in shows:
+        if show.start_time > datetime.now():
+            upcoming_shows.append({
+                "venue_id": show.venue_id,
+                "venue_name": Venue.query.filter_by(id=show.venue_id).first().name,
+                "venue_image_link": Venue.query.filter_by(id=show.venue_id).first().image_link,
+                "start_time": show.start_time.strftime("%Y-%m-%d %H:%M:%S")
+            })
 
     data = {
         "id": artist_data.id,
