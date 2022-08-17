@@ -122,29 +122,28 @@ def show_venue(venue_id):
     if not venue_data:
         return render_template("errors/404.html")
 
-    past_shows = []
-    past_shows_data = db.session.query(Show).join(Artist).filter(
-        Show.venue_id == venue_id).filter(Show.start_time < datetime.now()).all()
+    shows = Show.query.filter_by(venue_id=venue_data.id).all()
 
-    for show in past_shows_data:
-        past_shows.append({
-            "artist_id": show.artist_id,
-            "artist_name": show.artist.name,
-            "artist_image_link": show.artist.image_link,
-            "start_time": show.start_time.strftime("%Y-%m-%d %H:%M:%S")
-        })
+    past_shows = []
+    for show in shows:
+        if show.start_time < datetime.now():
+            past_shows.append({
+                "artist_id": show.artist_id,
+                "artist_name": Artist.query.filter_by(id=show.artist_id).first().name,
+                "artist_image_link": Artist.query.filter_by(id=show.artist_id).first().image_link,
+                "start_time": show.start_time.strftime("%Y-%m-%d %H:%M:%S")
+            })
 
     upcoming_shows = []
-    upcoming_shows_data = db.session.query(Show).join(Artist).filter(
-        Show.venue_id == venue_id).filter(Show.start_time > datetime.now()).all()
+    for show in shows:
+        if show.start_time > datetime.now():
+            past_shows.append({
+                "artist_id": show.artist_id,
+                "artist_name": Artist.query.filter_by(id=show.artist_id).first().name,
+                "artist_image_link": Artist.query.filter_by(id=show.artist_id).first().image_link,
+                "start_time": show.start_time.strftime("%Y-%m-%d %H:%M:%S")
+            })
 
-    for show in upcoming_shows_data:
-        upcoming_shows.append({
-            "artist_id": show.artist_id,
-            "artist_name": show.artist.name,
-            "artist_image_link": show.artist.image_link,
-            "start_time": show.start_time.strftime("%Y-%m-%d %H:%M:%S")
-        })
     data = {
         "id": venue_data.id,
         "name": venue_data.name,
