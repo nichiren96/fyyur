@@ -380,27 +380,30 @@ def edit_venue_submission(venue_id):
 
     venue = Venue.query.get(venue_id)
 
-    try:
-        venue.name = request.form['name']
-        venue.city = request.form['city']
-        venue.state = request.form['state']
-        venue.address = request.form['address']
-        venue.phone = request.form['phone']
-        venue.genres = request.form.getlist('genres')
-        venue.image_link = request.form['image_link']
-        venue.facebook_link = request.form['facebook_link']
-        venue.website_link = request.form['website_link']
-        venue.seeking_talent = True if 'seeking_talent' in request.form else False
-        venue.seeking_description = request.form['seeking_description']
+    if(venue):
+        try:
+            venue.name = request.form['name']
+            venue.city = request.form['city']
+            venue.state = request.form['state']
+            venue.address = request.form['address']
+            venue.phone = request.form['phone']
+            venue.genres = request.form.getlist('genres')
+            venue.image_link = request.form['image_link']
+            venue.facebook_link = request.form['facebook_link']
+            venue.website_link = request.form['website_link']
+            venue.seeking_talent = True if 'seeking_talent' in request.form else False
+            venue.seeking_description = request.form['seeking_description']
 
-        db.session.commit()
-        flash("Venue updated sucessfully")
-    except:
-        db.session.rollback()
-        print(sys.exc_info())
-        flash("An error occured. Unable to change venue info")
-    finally:
-        db.session.close()
+            db.session.commit()
+            flash("Venue updated sucessfully")
+        except:
+            db.session.rollback()
+            print(sys.exc_info())
+            flash("An error occured. Unable to change venue info")
+        finally:
+            db.session.close()
+    else:
+        return render_template("errors/404.html")
 
     return redirect(url_for('show_venue', venue_id=venue_id))
 
