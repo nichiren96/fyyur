@@ -180,7 +180,7 @@ def create_venue_submission():
     try:
         form = VenueForm(request.form)
         venue = Venue(name=form.name.data, city=form.city.data, state=form.state.data, address=form.address.data, phone=form.phone.data,
-                      image_link=form.image_link.data, facebook_link=form.facebook_link.data, website_link=form.website_link.data)
+                      genres=form.genres.data, image_link=form.image_link.data, facebook_link=form.facebook_link.data, website_link=form.website_link.data)
         db.session.add(venue)
         db.session.commit()
         # on successful db insert, flash success
@@ -199,6 +199,11 @@ def create_venue_submission():
 @app.route('/venues/<venue_id>', methods=['DELETE'])
 def delete_venue(venue_id):
     try:
+        venue_shows = Show.query.filter_by(venue_id=venue_id).all()
+
+        if (len(venue_shows) > 0):
+            Show.query.filter_by(venue_id=venue_id).delete()
+
         Venue.query.filter_by(id=venue_id).delete()
         db.session.commit()
         flash("Venue deleted successfully")
@@ -210,6 +215,7 @@ def delete_venue(venue_id):
         db.session.close()
 
     return render_template('pages/home.html')
+
 
 #  Artists
 #  ----------------------------------------------------------------
